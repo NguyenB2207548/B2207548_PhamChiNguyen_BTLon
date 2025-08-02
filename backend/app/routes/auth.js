@@ -67,7 +67,6 @@ router.post("/login/reader", async (req, res) => {
     if (!isMatch) return res.status(401).json({ message: "Sai mật khẩu" });
 
     const token = generateToken(reader, "reader");
-
     res.json({ message: "Đăng nhập thành công", token, user: reader });
   } catch (err) {
     res.status(500).json({ message: "Lỗi đăng nhập", error: err.message });
