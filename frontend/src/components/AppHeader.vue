@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light nav-header">
     <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="#">Library ctu</a>
+      <router-link class="navbar-brand fw-bold" to="/">Library ctu</router-link>
 
       <button
         class="navbar-toggler"
@@ -18,61 +18,56 @@
       <div class="collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav me-3 mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="#">Trang chủ</a>
+            <router-link class="nav-link" to="/">Trang chủ</router-link>
           </li>
-
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="communityDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Thể loại
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="communityDropdown">
-              <li><a class="dropdown-item" href="#">Groups</a></li>
-              <li><a class="dropdown-item" href="#">Discussions</a></li>
-            </ul>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/products">Sản phẩm</router-link>
           </li>
         </ul>
 
-        <!-- Tìm kiếm -->
+        <!-- Ô tìm kiếm -->
         <form
           class="d-flex mx-auto justify-content-center flex-grow-1 mx-3"
           role="search"
+          @submit.prevent="handleSearch"
         >
-          <div class="position-relative w-100" style="max-width: 650px">
+          <div class="position-relative w-100" style="max-width: 600px">
             <input
               type="text"
+              v-model="searchQuery"
               class="form-control ps-3 pe-5 rounded border"
-              placeholder="Search books"
+              placeholder="Tìm kiếm sách theo tên"
             />
-            <i
-              class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3 text-muted"
-              style="pointer-events: none"
-            ></i>
+            <button
+              type="submit"
+              class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent"
+            >
+              <i class="bi bi-search text-muted fs-5"></i>
+            </button>
           </div>
         </form>
 
-        <!-- Đăng nhập và đăng ký -->
-        <div class="d-flex align-items-center">
-          <!-- Nếu đã đăng nhập -->
+        <!-- Tài khoản -->
+
+        <div class="d-flex align-items-center ms-auto gap-2">
           <template v-if="isLoggedIn">
-            <span class="me-3">
-              Xin chào, <strong>{{ user.ten }}</strong>
+            <span class="fw-semibold text-dark">
+              {{ role === "staff" ? user.hoTenNV || user.ten : user.ten }}
             </span>
+            <router-link
+              class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 ms-2"
+              to="/borrow-history"
+            >
+              <i class="bi bi-journal-text"></i> Lịch sử
+            </router-link>
             <button
-              class="btn btn-outline-secondary btn-sm"
+              class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 ms-2"
               @click="handleLogout"
             >
-              Đăng xuất
+              <i class="bi bi-box-arrow-right"></i> Thoát
             </button>
           </template>
 
-          <!-- Nếu chưa đăng nhập -->
           <template v-else>
             <a
               href="#"
@@ -99,18 +94,26 @@
 export default {
   name: "AppHeader",
   props: {
-    user: {
-      type: Object,
-      default: null,
-    },
-    isLoggedIn: {
-      type: Boolean,
-      default: false,
-    },
+    user: { type: Object, default: null },
+    isLoggedIn: { type: Boolean, default: false },
+    role: { type: String, default: "reader" },
+  },
+  data() {
+    return {
+      searchQuery: "",
+    };
   },
   methods: {
     handleLogout() {
-      this.$emit("logout"); // gửi sự kiện ra ngoài để App.vue xử lý
+      this.$emit("logout");
+    },
+    handleSearch() {
+      if (this.searchQuery.trim()) {
+        this.$router.push({
+          path: "/products",
+          query: { search: this.searchQuery },
+        });
+      }
     },
   },
 };
@@ -119,7 +122,6 @@ export default {
 <style>
 .nav-header {
   background-color: #faf8f6;
-  /* max-width: 1280px; */
   margin: 0 auto;
 }
 </style>

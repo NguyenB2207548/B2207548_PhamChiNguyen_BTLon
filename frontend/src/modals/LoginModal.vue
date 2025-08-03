@@ -21,13 +21,13 @@
         <div class="modal-body">
           <form @submit.prevent="handleLogin">
             <div class="mb-3">
-              <label for="readerCode" class="form-label">Mã độc giả</label>
+              <label for="userCode" class="form-label">Mã đăng nhập</label>
               <input
                 type="text"
                 class="form-control"
-                id="readerCode"
-                v-model="readerCode"
-                placeholder="VD: DG00123"
+                id="userCode"
+                v-model="userCode"
+                placeholder="VD: DG001 hoặc NV123"
                 required
               />
             </div>
@@ -62,7 +62,7 @@ export default {
   name: "LoginModal",
   data() {
     return {
-      readerCode: "",
+      userCode: "",
       password: "",
       error: "",
     };
@@ -75,7 +75,7 @@ export default {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            maDG: this.readerCode,
+            maSo: this.userCode,
             password: this.password,
           }),
         });
@@ -85,6 +85,7 @@ export default {
 
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("role", data.role);
 
         this.$emit("login-success", data.user);
 
@@ -92,8 +93,8 @@ export default {
         const modal = Modal.getInstance(modalEl);
         modal.hide();
 
-        window.location.reload();
-        // this.$router.push("/");
+        // 👉 Phân trang theo role
+        window.location.href = data.redirect;
       } catch (err) {
         this.error = err.message;
       }

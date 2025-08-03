@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Hero / Giới thiệu -->
+    <!-- Giới thiệu -->
     <section class="py-5 text-center header-intro">
       <div class="container">
         <h1 class="display-5 fw-bold">
@@ -87,20 +87,6 @@
         <a href="/register" class="btn btn-outline-light mt-3">Đăng ký ngay</a>
       </div>
     </section>
-  </div>
-
-  <div>
-    <!-- Footer -->
-    <footer class="bg-light text-center text-muted py-4 mt-5">
-      <div class="container">
-        <p class="mb-1">&copy; 2025 Thư viện Library. All rights reserved.</p>
-        <div>
-          <a href="#" class="text-muted me-3">Giới thiệu</a>
-          <a href="#" class="text-muted me-3">Liên hệ</a>
-          <a href="#" class="text-muted">Chính sách</a>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 

@@ -1,8 +1,15 @@
 <template>
   <div>
-    <AppHeader :user="user" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
-
-    <router-view />
+    <div class="app1">
+      <AppHeader
+        :user="user"
+        :isLoggedIn="isLoggedIn"
+        :role="role"
+        @logout="handleLogout"
+      />
+      <router-view />
+    </div>
+    <AppFooter />
 
     <LoginModal @login-success="handleLoginSuccess" />
     <RegisterModal />
@@ -11,6 +18,7 @@
 
 <script>
 import AppHeader from "./components/AppHeader.vue";
+import AppFooter from "./components/AppFooter.vue";
 import LoginModal from "./modals/LoginModal.vue";
 import RegisterModal from "./modals/RegisterModal.vue";
 
@@ -18,12 +26,14 @@ export default {
   name: "App",
   components: {
     AppHeader,
+    AppFooter,
     LoginModal,
     RegisterModal,
   },
   data() {
     return {
       user: null,
+      role: localStorage.getItem("role"),
     };
   },
   computed: {
@@ -50,3 +60,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.app1 {
+  min-height: 100vh;
+}
+</style>

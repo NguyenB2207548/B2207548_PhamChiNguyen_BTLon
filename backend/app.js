@@ -12,6 +12,7 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/uploads", express.static("app/uploads"));
 
 app.use("/api/books", bookRouters);
 app.use("/api/publishers", publisherRoutes);

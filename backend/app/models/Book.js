@@ -10,9 +10,13 @@ const BookSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  donGia: {
-    type: Number,
-    min: [0, "Đơn giá phải >= 0"],
+  tacGia: {
+    type: String,
+    required: true,
+  },
+  theLoai: {
+    type: String,
+    required: true,
   },
   soQuyen: {
     type: Number,
@@ -32,6 +36,10 @@ const BookSchema = new mongoose.Schema({
     type: String,
     required: true,
     ref: "Publisher",
+  },
+  hinhAnh: {
+    type: String,
+    default: "",
   },
 });
 
