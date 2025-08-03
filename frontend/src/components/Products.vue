@@ -86,12 +86,14 @@ export default {
       this.extractCategories();
       this.extractAuthors();
 
-      const query = this.$route.query.search;
-      if (query) {
-        this.filterBooks(query);
-      } else {
-        this.filteredBooks = data;
+      const query = this.$route.query.search || "";
+      const categoryFromQuery = this.$route.query.category;
+
+      if (categoryFromQuery) {
+        this.selectedCategory = categoryFromQuery;
       }
+
+      this.filterBooks(query);
     } catch (err) {
       console.error("Lỗi khi lấy sách:", err);
     }

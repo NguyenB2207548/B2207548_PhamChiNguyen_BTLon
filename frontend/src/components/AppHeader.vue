@@ -55,13 +55,23 @@
               {{ role === "staff" ? user.hoTenNV || user.ten : user.ten }}
             </span>
             <router-link
-              class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 ms-2"
+              class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1 ms-2"
+              style="
+                padding: 0.1rem 0.5rem;
+                font-size: 0.75rem;
+                border-radius: 0.2rem;
+              "
               to="/borrow-history"
             >
               <i class="bi bi-journal-text"></i> Lịch sử
             </router-link>
             <button
-              class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 ms-2"
+              class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1 ms-2"
+              style="
+                padding: 0.1rem 0.5rem;
+                font-size: 0.75rem;
+                border-radius: 0.2rem;
+              "
               @click="handleLogout"
             >
               <i class="bi bi-box-arrow-right"></i> Thoát

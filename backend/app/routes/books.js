@@ -34,6 +34,12 @@ router.post(
 
 router.get("/sameCategory", bookController.getBooksSameCategory);
 
+router.get("/newest", bookController.getNewestBooks);
+
+router.get("/mostBorrowed", bookController.getMostBorrowedBooks);
+
+router.get("/genres", bookController.getAllGenres);
+
 router.get("/:maSach", bookController.details);
 
 router.put("/:maSach", authMiddleware, bookController.update);

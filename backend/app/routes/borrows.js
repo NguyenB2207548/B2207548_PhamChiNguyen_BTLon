@@ -11,4 +11,6 @@ router.put("/reject/:id", borrowController.reject);
 
 router.get("/getAll", borrowController.getAll);
 
+router.get("/getHistory", authMiddleware, borrowController.getHistory);
+
 module.exports = router;

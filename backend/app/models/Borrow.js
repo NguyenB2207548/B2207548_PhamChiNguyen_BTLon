@@ -9,7 +9,7 @@ const BorrowSchema = new mongoose.Schema({
 
   trangThai: {
     type: String,
-    enum: ["pending", "approved", "rejected"],
+    enum: ["pending", "approved", "rejected", "returned"],
     default: "pending",
   },
 });

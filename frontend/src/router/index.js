@@ -4,6 +4,9 @@ import Products from "../components/Products.vue";
 import BookDetail from "../components/BookDetail.vue";
 import Admin from "../components/Admin.vue";
 import BorrowHistory from "../components/BorrowHistory.vue";
+import AboutPage from "../components/AboutPage.vue";
+import ContactPage from "../components/ContactPage.vue";
+import PolicyPage from "../components/PolicyPage.vue";
 
 const routes = [
   {
@@ -32,6 +35,9 @@ const routes = [
     name: "BorrowHistory",
     component: BorrowHistory,
   },
+  { path: "/gioi-thieu", component: AboutPage },
+  { path: "/lien-he", component: ContactPage },
+  { path: "/chinh-sach", component: PolicyPage },
 ];
 
 const router = createRouter({

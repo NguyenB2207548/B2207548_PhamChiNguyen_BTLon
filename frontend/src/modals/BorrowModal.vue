@@ -5,6 +5,7 @@
     tabindex="-1"
     aria-labelledby="borrowModalLabel"
     aria-hidden="true"
+    ref="borrowModal"
   >
     <div class="modal-dialog">
       <div class="modal-content">
@@ -14,10 +15,11 @@
             <button
               type="button"
               class="btn-close"
-              data-bs-dismiss="modal"
               aria-label="Đóng"
+              @click="onCloseClicked"
             ></button>
           </div>
+
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label">Ngày mượn</label>
@@ -29,6 +31,7 @@
                 :min="today"
               />
             </div>
+
             <div class="mb-3">
               <label class="form-label">Ngày hẹn trả</label>
               <input
@@ -40,11 +43,12 @@
               />
             </div>
           </div>
+
           <div class="modal-footer">
             <button
               type="button"
               class="btn btn-secondary"
-              data-bs-dismiss="modal"
+              @click="onCloseClicked"
             >
               Hủy
             </button>
@@ -57,6 +61,8 @@
 </template>
 
 <script>
+import * as bootstrap from "bootstrap";
+
 export default {
   name: "ModalBorrowBook",
   props: ["maSach"],
@@ -66,9 +72,21 @@ export default {
       today,
       ngayMuon: today,
       ngayHenTra: today,
+      modalInstance: null,
     };
   },
+  mounted() {
+    const modalEl = this.$refs.borrowModal;
+    if (modalEl) {
+      this.modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+    }
+  },
   methods: {
+    resetForm() {
+      const today = new Date().toISOString().slice(0, 10);
+      this.ngayMuon = today;
+      this.ngayHenTra = today;
+    },
     async submitForm() {
       if (new Date(this.ngayHenTra) < new Date(this.ngayMuon)) {
         alert("Ngày trả phải lớn hơn hoặc bằng ngày mượn");
@@ -98,21 +116,24 @@ export default {
         }
 
         alert("Đăng ký mượn thành công!");
-
-        // Đóng modal đúng cách
-        const modalEl = document.getElementById("borrowModal");
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.hide();
-
-        // Cleanup backdrop nếu còn sót
-        setTimeout(() => {
-          document.body.classList.remove("modal-open");
-          const backdrop = document.querySelector(".modal-backdrop");
-          if (backdrop) backdrop.remove();
-        }, 300);
+        this.onCloseClicked(); // Đóng modal và reset
+        this.$emit("borrowed"); // Gửi event ra ngoài nếu cần reload
       } catch (err) {
         alert(err.message);
       }
+    },
+    onCloseClicked() {
+      if (document.activeElement) document.activeElement.blur(); // bỏ focus để tránh lỗi focus
+      if (this.modalInstance) {
+        this.modalInstance.hide();
+      }
+      this.resetForm();
+      this.$emit("modal-closed"); // Tùy chọn: gửi sự kiện ra ngoài nếu cần
+
+      document.body.classList.remove("modal-open");
+
+      const backdrop = document.querySelector(".modal-backdrop");
+      if (backdrop) backdrop.remove();
     },
   },
 };

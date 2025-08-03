@@ -1,6 +1,7 @@
 const Borrow = require("../models/Borrow");
 const Book = require("../models/Book");
 const Reader = require("../models/Reader");
+const Return = require("../models/Return");
 
 exports.create = async (req, res) => {
   try {
@@ -115,16 +116,84 @@ exports.getAll = async (req, res) => {
     // Lọc thông tin cần thiết
     const result = borrows.map((borrow) => ({
       _id: borrow._id,
+      maDocGia: borrow.maDocGia,
+      maSach: borrow.maSach,
       tenDocGia: borrow.maDocGia?.ten || "Không rõ",
       tenSach: borrow.maSach?.tenSach || "Không rõ",
       ngayMuon: borrow.ngayMuon,
       ngayTra: borrow.ngayTra,
       trangThai: borrow.trangThai,
+      daTra: borrow.daTra,
     }));
 
     res.json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Lỗi server khi lấy danh sách mượn sách" });
+  }
+};
+
+exports.getHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // 1. Lấy danh sách Borrow
+    const borrows = await Borrow.find({ maDocGia: userId })
+      .populate("maSach", "tenSach")
+      .sort({ ngayMuon: -1 });
+
+    // 2. Lấy danh sách Return
+    const returns = await Return.find({ maDocGia: userId });
+
+    // 3. Tạo map return: key = maDocGia_maSach_ngayMuon_ngayHenTra
+    const returnMap = new Map();
+    returns.forEach((r) => {
+      const key = `${r.maDocGia}_${r.maSach}_${new Date(
+        r.ngayMuon
+      ).toISOString()}_${new Date(r.ngayHenTra).toISOString()}`;
+      returnMap.set(key, r);
+    });
+
+    // 4. Kết hợp dữ liệu Borrow + Return
+    const result = borrows.map((b) => {
+      const key = `${b.maDocGia}_${b.maSach._id}_${new Date(
+        b.ngayMuon
+      ).toISOString()}_${new Date(b.ngayTra).toISOString()}`;
+      const returnRecord = returnMap.get(key);
+
+      const ngayHenTra = new Date(b.ngayTra);
+      const ngayThucTeTra = returnRecord
+        ? new Date(returnRecord.ngayTra)
+        : null;
+      const daTra = b.daTra;
+
+      const soNgayTre = returnRecord
+        ? returnRecord.soNgayTre
+        : daTra
+        ? Math.max(
+            0,
+            Math.ceil((new Date() - ngayHenTra) / (1000 * 60 * 60 * 24))
+          )
+        : 0;
+
+      const tienPhat = returnRecord ? returnRecord.tienPhat : soNgayTre * 10000;
+
+      return {
+        _id: b._id,
+        tenSach: b.maSach?.tenSach || "Không rõ",
+        ngayMuon: b.ngayMuon,
+        ngayHenTra: b.ngayTra,
+        ngayTra: ngayThucTeTra,
+        daTra,
+        trangThai: b.trangThai, // approved, pending, rejected
+        soNgayTre,
+        tienPhat,
+      };
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error("Lỗi khi lấy lịch sử:", err);
+    res.status(500).json({ message: "Lỗi server khi lấy lịch sử" });
   }
 };

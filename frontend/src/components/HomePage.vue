@@ -10,7 +10,9 @@
           Khám phá hàng ngàn cuốn sách thuộc nhiều thể loại khác nhau, hoàn toàn
           miễn phí!
         </p>
-        <a href="#" class="btn btn-primary mt-3">Bắt đầu khám phá</a>
+        <router-link to="/products" class="btn btn-success mt-3"
+          >Bắt đầu khám phá</router-link
+        >
       </div>
     </section>
 
@@ -24,9 +26,12 @@
             :key="index"
             class="col-6 col-md-2"
           >
-            <div class="card text-center p-3 shadow-sm">
+            <router-link
+              :to="{ path: '/products', query: { category: category } }"
+              class="card text-center p-3 shadow-sm text-decoration-none text-dark"
+            >
               <span>{{ category }}</span>
-            </div>
+            </router-link>
           </div>
         </div>
       </div>
@@ -84,7 +89,14 @@
           Đăng ký tài khoản ngay để mượn sách trực tuyến và quản lý tủ sách của
           bạn.
         </p>
-        <a href="/register" class="btn btn-outline-light mt-3">Đăng ký ngay</a>
+        <a
+          href="#"
+          class="btn btn-outline-light mt-3"
+          data-bs-toggle="modal"
+          data-bs-target="#registerModal"
+        >
+          Đăng ký ngay
+        </a>
       </div>
     </section>
   </div>
@@ -95,54 +107,58 @@ export default {
   name: "HomePage",
   data() {
     return {
-      categories: [
-        "Tiểu thuyết",
-        "Khoa học",
-        "Tâm lý",
-        "Thiếu nhi",
-        "Lịch sử",
-        "Kinh tế",
-      ],
-      newBooks: [
-        {
-          title: "Đắc nhân tâm",
-          author: "Dale Carnegie",
-          image: "https://via.placeholder.com/150x220",
-        },
-        {
-          title: "Nhà giả kim",
-          author: "Paulo Coelho",
-          image: "https://via.placeholder.com/150x220",
-        },
-        {
-          title: "1984",
-          author: "George Orwell",
-          image: "https://via.placeholder.com/150x220",
-        },
-        {
-          title: "Sapiens",
-          author: "Yuval Noah Harari",
-          image: "https://via.placeholder.com/150x220",
-        },
-      ],
-      popularBooks: [
-        {
-          title: "Harry Potter",
-          author: "J.K. Rowling",
-          image: "https://via.placeholder.com/150x220",
-        },
-        {
-          title: "Bố già",
-          author: "Mario Puzo",
-          image: "https://via.placeholder.com/150x220",
-        },
-        {
-          title: "Totto-chan",
-          author: "Tetsuko Kuroyanagi",
-          image: "https://via.placeholder.com/150x220",
-        },
-      ],
+      categories: [],
+      newBooks: [],
+      popularBooks: [],
     };
+  },
+  mounted() {
+    this.fetchGenres();
+    this.fetchNewBooks();
+    this.fetchPopularBooks();
+  },
+  methods: {
+    async fetchGenres() {
+      try {
+        const res = await fetch("http://localhost:3000/api/books/genres");
+        const data = await res.json();
+        this.categories = data.sort((a, b) => a.localeCompare(b));
+      } catch (error) {
+        console.error("Lỗi khi tải thể loại:", error);
+      }
+    },
+    async fetchNewBooks() {
+      try {
+        const response = await fetch("http://localhost:3000/api/books/newest");
+        const data = await response.json();
+        this.newBooks = data.map((book) => ({
+          title: book.tenSach,
+          author: book.tacGia,
+          image: book.hinhAnh.startsWith("/")
+            ? "http://localhost:3000" + book.hinhAnh
+            : book.hinhAnh,
+        }));
+      } catch (error) {
+        console.error("Lỗi khi tải sách mới:", error);
+      }
+    },
+    async fetchPopularBooks() {
+      try {
+        const response = await fetch(
+          "http://localhost:3000/api/books/mostBorrowed"
+        );
+        const data = await response.json();
+        this.popularBooks = data.map((book) => ({
+          title: book.tenSach,
+          author: book.tacGia,
+          image: book.hinhAnh.startsWith("/")
+            ? "http://localhost:3000" + book.hinhAnh
+            : book.hinhAnh,
+        }));
+      } catch (error) {
+        console.error("Lỗi khi tải sách phổ biến:", error);
+      }
+    },
   },
 };
 </script>

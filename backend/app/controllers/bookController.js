@@ -1,6 +1,6 @@
 const Book = require("../models/Book");
 const Publisher = require("../models/Publisher");
-const authMiddleware = require("../middleware/authMiddleware");
+const Borrow = require("../models/Borrow");
 
 exports.getAll = async (req, res) => {
   try {
@@ -198,5 +198,73 @@ exports.getBooksSameCategory = async (req, res) => {
     res
       .status(500)
       .json({ message: "Lỗi khi lấy sách cùng thể loại", error: err.message });
+  }
+};
+
+exports.getNewestBooks = async (req, res) => {
+  try {
+    const books = await Book.find({})
+      .sort({ namXuatBan: -1 }) // Sắp xếp theo năm xuất bản giảm dần
+      .limit(4); // Lấy 4 sách mới nhất
+
+    res.json(books);
+  } catch (err) {
+    console.error("Lỗi khi lấy sách mới:", err);
+    res
+      .status(500)
+      .json({ message: "Lỗi server khi lấy sách mới", error: err.message });
+  }
+};
+
+exports.getMostBorrowedBooks = async (req, res) => {
+  try {
+    // Đếm số lượt mượn theo mã sách (maSach là ObjectId tham chiếu đến Book._id)
+    const topBorrowed = await Borrow.aggregate([
+      {
+        $group: {
+          _id: "$maSach", // group theo ObjectId
+          totalBorrows: { $sum: 1 },
+        },
+      },
+      { $sort: { totalBorrows: -1 } },
+      { $limit: 3 },
+    ]);
+
+    // Lấy danh sách Book theo danh sách _id
+    const bookIds = topBorrowed.map((item) => item._id);
+    const books = await Book.find({ _id: { $in: bookIds } }).lean();
+
+    // Gắn số lượt mượn vào từng sách
+    const booksWithCount = books.map((book) => {
+      const borrowInfo = topBorrowed.find(
+        (b) => String(b._id) === String(book._id)
+      );
+      return {
+        ...book,
+        totalBorrows: borrowInfo?.totalBorrows || 0,
+      };
+    });
+
+    res.json(booksWithCount);
+  } catch (err) {
+    console.error("Lỗi khi lấy sách mượn nhiều nhất:", err);
+    res.status(500).json({
+      message: "Lỗi server khi lấy sách mượn nhiều nhất",
+      error: err.message,
+    });
+  }
+};
+
+// THE LOAI
+exports.getAllGenres = async (req, res) => {
+  try {
+    const genres = await Book.distinct("theLoai");
+    res.json(genres);
+  } catch (err) {
+    console.error("Lỗi khi lấy thể loại:", err);
+    res.status(500).json({
+      message: "Lỗi server khi lấy thể loại",
+      error: err.message,
+    });
   }
 };

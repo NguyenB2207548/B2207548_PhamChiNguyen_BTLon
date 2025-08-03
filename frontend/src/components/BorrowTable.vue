@@ -24,6 +24,8 @@
                 ? "Đã duyệt"
                 : item.trangThai === "rejected"
                 ? "Đã từ chối"
+                : item.trangThai === "returned"
+                ? "Đã trả"
                 : item.trangThai === "pending"
                 ? "Đang chờ duyệt"
                 : item.trangThai
@@ -46,7 +48,7 @@
               </button>
             </template>
 
-            <template v-else-if="item.trangThai === 'approved'">
+            <template v-else-if="item.trangThai === 'approved' && !item.daTra">
               <button
                 class="btn btn-primary btn-sm"
                 @click="returnBook(item._id)"
@@ -63,13 +65,76 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Modal trả sách -->
+  <div
+    class="modal fade"
+    id="returnModal"
+    tabindex="-1"
+    aria-labelledby="returnModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="returnModalLabel">Xác nhận trả sách</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" v-if="selectedBorrow">
+          <p><strong>Độc giả:</strong> {{ selectedBorrow.tenDocGia }}</p>
+          <p><strong>Sách:</strong> {{ selectedBorrow.tenSach }}</p>
+          <p>
+            <strong>Ngày mượn:</strong>
+            {{ formatDate(selectedBorrow.ngayMuon) }}
+          </p>
+          <p>
+            <strong>Ngày hẹn trả:</strong>
+            {{ formatDate(selectedBorrow.ngayTra) }}
+          </p>
+          <p v-if="returnInfo">
+            <strong>Ngày trả:</strong> {{ formatDate(returnInfo.ngayTra)
+            }}<br />
+            <strong>Trễ:</strong> {{ returnInfo.soNgayTre }} ngày<br />
+            <strong>Tiền phạt:</strong>
+            {{ returnInfo.tienPhat.toLocaleString() }} VND
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="confirmReturnBook"
+          >
+            Xác nhận trả sách
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+import { Modal } from "bootstrap";
+
 export default {
   data() {
     return {
       borrowRequests: [],
+      selectedBorrow: null,
+      returnInfo: null,
+      returnModal: null,
     };
   },
   methods: {
@@ -77,9 +142,8 @@ export default {
       return new Date(date).toLocaleDateString("vi-VN");
     },
     async fetchBorrows() {
-      this.borrowRequests = await (
-        await fetch("http://localhost:3000/api/borrows/getAll")
-      ).json();
+      const res = await fetch("http://localhost:3000/api/borrows/getAll");
+      this.borrowRequests = await res.json();
     },
     async approveBorrow(id) {
       await fetch(`http://localhost:3000/api/borrows/approve/${id}`, {
@@ -93,9 +157,56 @@ export default {
       });
       this.fetchBorrows();
     },
+
+    async returnBook(id) {
+      const borrow = this.borrowRequests.find((b) => b._id === id);
+      this.selectedBorrow = borrow;
+
+      const res = await fetch("http://localhost:3000/api/returns/preview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify({
+          maSach: borrow.maSach._id,
+          maDG: borrow.maDocGia._id,
+        }),
+      });
+
+      if (res.ok) {
+        this.returnInfo = await res.json();
+        this.returnModal.show();
+      } else {
+        alert("Không thể xem thông tin trả sách!");
+      }
+    },
+
+    async confirmReturnBook() {
+      const res = await fetch("http://localhost:3000/api/returns", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify({
+          maSach: this.selectedBorrow.maSach._id,
+          maDG: this.selectedBorrow.maDocGia._id,
+        }),
+      });
+
+      if (res.ok) {
+        alert("Trả sách thành công!");
+        this.returnModal.hide();
+        this.fetchBorrows();
+      } else {
+        alert("Lỗi khi trả sách!");
+      }
+    },
   },
   mounted() {
     this.fetchBorrows();
+    this.returnModal = new Modal(document.getElementById("returnModal"));
   },
 };
 </script>

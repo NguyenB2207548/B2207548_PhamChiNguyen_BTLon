@@ -56,7 +56,7 @@
                 </p>
               </div>
               <router-link
-                :to="`/books/${suggestion._id}`"
+                :to="`/products/${suggestion.maSach}`"
                 class="btn btn-outline-primary btn-sm w-100"
               >
                 Xem chi tiết
@@ -104,6 +104,11 @@ export default {
     this.fetchBook();
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) this.userId = user._id;
+  },
+  watch: {
+    "$route.params.id"(newId) {
+      this.fetchBook(); // gọi lại khi id thay đổi
+    },
   },
 };
 </script>
