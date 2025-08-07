@@ -6,7 +6,7 @@
     </button>
 
     <table class="table table-bordered mt-3">
-      <thead>
+      <thead class="table-dark">
         <tr>
           <th>Mã</th>
           <th>Họ tên</th>

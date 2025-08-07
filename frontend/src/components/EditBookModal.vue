@@ -146,11 +146,15 @@ export default {
     },
     async submitForm() {
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(
           `http://localhost:3000/api/books/${this.book.maSach}`,
           {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // Thêm dòng này
+            },
             body: JSON.stringify(this.book),
           }
         );

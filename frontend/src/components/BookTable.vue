@@ -5,7 +5,7 @@
       + Thêm sách
     </button>
     <table class="table table-bordered">
-      <thead>
+      <thead class="table-dark">
         <tr>
           <th>Tên sách</th>
           <th>Thể loại</th>
@@ -62,12 +62,24 @@ export default {
     async deleteBook(id) {
       if (confirm("Xóa sách này?")) {
         try {
-          await fetch(`http://localhost:3000/api/books/${id}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          });
+          const response = await fetch(
+            `http://localhost:3000/api/books/${id}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            alert("Không thể xóa sách: " + result.message);
+            return;
+          }
+
+          alert("Đã xóa sách thành công!");
           this.fetchBooks(); // Refresh danh sách
         } catch (err) {
           alert("Lỗi khi xóa sách: " + err.message);

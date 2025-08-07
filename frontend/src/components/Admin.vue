@@ -15,7 +15,7 @@
       </li>
       <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#borrows">
-          Yêu cầu mượn
+          Quản lý mượn sách
         </button>
       </li>
       <li class="nav-item">

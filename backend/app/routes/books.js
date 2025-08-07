@@ -25,12 +25,7 @@ const upload = multer({ storage });
 router.get("/", bookController.getAll);
 
 // ADD sách mới + upload ảnh
-router.post(
-  "/",
-  authMiddleware,
-  upload.single("image"), // tên field ảnh là "image"
-  bookController.add
-);
+router.post("/", authMiddleware, upload.single("image"), bookController.add);
 
 router.get("/sameCategory", bookController.getBooksSameCategory);
 

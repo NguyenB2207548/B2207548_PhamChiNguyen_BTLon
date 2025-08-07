@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h4>Yêu cầu mượn sách</h4>
+    <h4>Quản lý mượn sách</h4>
     <table class="table table-bordered mt-3">
-      <thead>
+      <thead class="table-dark">
         <tr>
           <th>Độc giả</th>
           <th>Sách</th>

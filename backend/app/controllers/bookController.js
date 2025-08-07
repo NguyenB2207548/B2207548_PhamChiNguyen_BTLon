@@ -25,7 +25,6 @@ exports.add = async (req, res) => {
       diaChiNXB,
     } = req.body;
 
-    // ✅ Sinh mã sách duy nhất (dựa trên mã lớn nhất hiện có)
     const lastBook = await Book.findOne()
       .sort({ maSach: -1 })
       .collation({ locale: "en", numericOrdering: true });
@@ -38,7 +37,6 @@ exports.add = async (req, res) => {
 
     const maSach = `S${nextCode}`;
 
-    // ✅ Tìm hoặc tạo nhà xuất bản
     let publisher = await Publisher.findOne({ tenNXB });
 
     if (!publisher) {
@@ -63,10 +61,9 @@ exports.add = async (req, res) => {
       await publisher.save();
     }
 
-    // ✅ Xử lý ảnh đã upload qua multer
     let imagePath = "";
     if (req.file) {
-      imagePath = `/uploads/${req.file.filename}`;
+      imagePath = `uploads/${req.file.filename}`;
     }
 
     const newBook = new Book({
@@ -111,21 +108,23 @@ exports.details = async (req, res) => {
 
 exports.update = async (req, res) => {
   const maSach = req.params.maSach;
-  const { tenSach, tacGia, theLoai, soQuyen, namXuatBan, nguonGoc } = req.body;
+  const { tenSach, theLoai, tacGia, soQuyen, namXuatBan, nguonGoc } = req.body;
 
   try {
     const updatedBook = await Book.findOneAndUpdate(
       { maSach },
       {
         tenSach,
-        tacGia,
         theLoai,
+        tacGia,
         soQuyen,
         namXuatBan,
         nguonGoc,
       },
       { new: true, runValidators: true }
     );
+
+    console.log(tenSach);
 
     if (!updatedBook) {
       return res.status(404).json({ message: "Không tìm thấy sách để sửa" });
@@ -144,11 +143,24 @@ exports.delete = async (req, res) => {
   const { maSach } = req.params;
 
   try {
-    const deletedBook = await Book.findOneAndDelete({ maSach });
+    const book = await Book.findOne({ maSach });
 
-    if (!deletedBook) {
+    if (!book) {
       return res.status(404).json({ message: "Không tìm thấy sách để xóa" });
     }
+
+    const isBorrowed = await Borrow.findOne({
+      maSach: book._id,
+      trangThai: "approved",
+    });
+
+    if (isBorrowed) {
+      return res.status(400).json({
+        message: "Không thể xóa sách vì đang được mượn",
+      });
+    }
+
+    const deletedBook = await Book.findOneAndDelete({ maSach });
 
     res.json({ message: "Đã xóa sách thành công", book: deletedBook });
   } catch (err) {

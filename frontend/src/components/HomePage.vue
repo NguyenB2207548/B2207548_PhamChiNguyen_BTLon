@@ -47,13 +47,16 @@
             v-for="(book, index) in newBooks"
             :key="'new-' + index"
           >
-            <div class="card h-100 shadow-sm">
-              <img :src="book.image" class="card-img-top" alt="book.title" />
+            <router-link
+              :to="`/products/${book.id}`"
+              class="card h-100 shadow-sm text-decoration-none text-dark"
+            >
+              <img :src="book.image" class="card-img-top" :alt="book.title" />
               <div class="card-body">
                 <h5 class="card-title">{{ book.title }}</h5>
                 <p class="card-text">Tác giả: {{ book.author }}</p>
               </div>
-            </div>
+            </router-link>
           </div>
         </div>
       </div>
@@ -69,13 +72,16 @@
             v-for="(book, index) in popularBooks"
             :key="'popular-' + index"
           >
-            <div class="card h-100 shadow-sm">
-              <img :src="book.image" class="card-img-top" alt="book.title" />
+            <router-link
+              :to="`/products/${book.id}`"
+              class="card h-100 shadow-sm text-decoration-none text-dark"
+            >
+              <img :src="book.image" class="card-img-top" :alt="book.title" />
               <div class="card-body">
                 <h5 class="card-title">{{ book.title }}</h5>
                 <p class="card-text">Tác giả: {{ book.author }}</p>
               </div>
-            </div>
+            </router-link>
           </div>
         </div>
       </div>
@@ -132,6 +138,7 @@ export default {
         const response = await fetch("http://localhost:3000/api/books/newest");
         const data = await response.json();
         this.newBooks = data.map((book) => ({
+          id: book.maSach,
           title: book.tenSach,
           author: book.tacGia,
           image: "http://localhost:3000/" + book.hinhAnh,
@@ -147,6 +154,7 @@ export default {
         );
         const data = await response.json();
         this.popularBooks = data.map((book) => ({
+          id: book.maSach,
           title: book.tenSach,
           author: book.tacGia,
           image: "http://localhost:3000/" + book.hinhAnh,
