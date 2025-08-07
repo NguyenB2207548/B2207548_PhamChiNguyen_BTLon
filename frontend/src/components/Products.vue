@@ -35,7 +35,7 @@
           <img
             :src="
               book.hinhAnh
-                ? `http://localhost:3000${book.hinhAnh}`
+                ? `http://localhost:3000/${book.hinhAnh}`
                 : 'https://placehold.co/150x220?text=No+Image'
             "
             class="card-img-top"

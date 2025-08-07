@@ -76,12 +76,29 @@ export default {
     };
   },
   mounted() {
-    const modalEl = this.$refs.borrowModal;
-    if (modalEl) {
-      this.modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-    }
+    this.initModal();
+  },
+  beforeUnmount() {
+    // Hủy modal instance khi component bị hủy
+    this.cleanupModal();
   },
   methods: {
+    initModal() {
+      const modalEl = this.$refs.borrowModal;
+      if (modalEl) {
+        this.modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+      } else {
+        console.error("Modal element not found!");
+      }
+    },
+    showModal() {
+      if (!this.modalInstance) {
+        this.initModal();
+      }
+      if (this.modalInstance) {
+        this.modalInstance.show();
+      }
+    },
     resetForm() {
       const today = new Date().toISOString().slice(0, 10);
       this.ngayMuon = today;
@@ -116,24 +133,49 @@ export default {
         }
 
         alert("Đăng ký mượn thành công!");
-        this.onCloseClicked(); // Đóng modal và reset
-        this.$emit("borrowed"); // Gửi event ra ngoài nếu cần reload
+        this.onCloseClicked();
+        this.$emit("borrowed");
       } catch (err) {
         alert(err.message);
       }
     },
-    onCloseClicked() {
-      if (document.activeElement) document.activeElement.blur(); // bỏ focus để tránh lỗi focus
+    cleanupModal() {
       if (this.modalInstance) {
         this.modalInstance.hide();
+        this.modalInstance.dispose();
+        this.modalInstance = null;
       }
-      this.resetForm();
-      this.$emit("modal-closed"); // Tùy chọn: gửi sự kiện ra ngoài nếu cần
-
+      // Xóa lớp modal-open và khôi phục overflow
       document.body.classList.remove("modal-open");
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+      // Xóa tất cả backdrop
+      document
+        .querySelectorAll(".modal-backdrop")
+        .forEach((backdrop) => backdrop.remove());
+    },
+    onCloseClicked() {
+      if (document.activeElement) document.activeElement.blur();
 
-      const backdrop = document.querySelector(".modal-backdrop");
-      if (backdrop) backdrop.remove();
+      if (this.modalInstance) {
+        const modalEl = this.$refs.borrowModal;
+        modalEl.addEventListener(
+          "hidden.bs.modal",
+          () => {
+            this.resetForm();
+            this.$emit("modal-closed");
+            // Xóa lớp modal-open và khôi phục overflow
+            document.body.classList.remove("modal-open");
+            document.body.style.overflow = "";
+            document.body.style.paddingRight = "";
+            // Xóa backdrop
+            const backdrop = document.querySelector(".modal-backdrop");
+            if (backdrop) backdrop.remove();
+          },
+          { once: true }
+        );
+        this.modalInstance.hide();
+      }
     },
   },
 };

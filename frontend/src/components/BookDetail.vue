@@ -4,10 +4,9 @@
     <div class="row mb-5">
       <div class="col-md-5">
         <img
-          :src="`http://localhost:3000${book.hinhAnh}`"
-          class="img-fluid rounded shadow-sm"
+          :src="`http://localhost:3000/${book.hinhAnh}`"
+          class="book-detail-img"
           alt="Ảnh sách"
-          style="width: 100%; object-fit: cover"
         />
       </div>
       <div class="col-md-6 ms-2">
@@ -41,7 +40,7 @@
         >
           <div class="card h-100 shadow-sm" style="font-size: 0.85rem">
             <img
-              :src="`http://localhost:3000${suggestion.hinhAnh}`"
+              :src="`http://localhost:3000/${suggestion.hinhAnh}`"
               class="card-img-top"
               alt="Ảnh gợi ý"
               style="height: 140px; object-fit: cover"
@@ -117,5 +116,20 @@ export default {
 .card-title {
   font-size: 0.95rem;
   font-weight: 600;
+}
+.card-img-top {
+  mix-blend-mode: multiply;
+  background-color: transparent;
+}
+
+.book-detail-img {
+  max-height: 400px;
+  width: 100%;
+  object-fit: contain;
+  background-color: #f8f8f8;
+  padding: 10px;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
 }
 </style>

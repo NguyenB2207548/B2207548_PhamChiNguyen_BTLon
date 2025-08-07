@@ -60,10 +60,10 @@
     </section>
 
     <!-- Sách phổ biến -->
-    <section class="py-5">
+    <section class="py-5 bg-light">
       <div class="container">
         <h2 class="mb-4">Sách được mượn nhiều</h2>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
           <div
             class="col"
             v-for="(book, index) in popularBooks"
@@ -134,9 +134,7 @@ export default {
         this.newBooks = data.map((book) => ({
           title: book.tenSach,
           author: book.tacGia,
-          image: book.hinhAnh.startsWith("/")
-            ? "http://localhost:3000" + book.hinhAnh
-            : book.hinhAnh,
+          image: "http://localhost:3000/" + book.hinhAnh,
         }));
       } catch (error) {
         console.error("Lỗi khi tải sách mới:", error);
@@ -151,9 +149,7 @@ export default {
         this.popularBooks = data.map((book) => ({
           title: book.tenSach,
           author: book.tacGia,
-          image: book.hinhAnh.startsWith("/")
-            ? "http://localhost:3000" + book.hinhAnh
-            : book.hinhAnh,
+          image: "http://localhost:3000/" + book.hinhAnh,
         }));
       } catch (error) {
         console.error("Lỗi khi tải sách phổ biến:", error);
@@ -173,5 +169,44 @@ export default {
 }
 .card-text {
   font-size: 0.95rem;
+}
+section.py-5.bg-light .card {
+  max-width: 300px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+section.py-5.bg-light .card-img-top {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+section.py-5.bg-light .card-body {
+  padding: 0.75rem 1rem;
+}
+
+section.py-5.bg-light .card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  line-height: 1.2em;
+  min-height: 2.4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+section.py-5.bg-light .card-text {
+  font-size: 0.85rem;
+  color: #555;
+  font-style: italic;
+  margin-bottom: 0;
+}
+.card-img-top {
+  mix-blend-mode: multiply;
+  background-color: transparent;
 }
 </style>

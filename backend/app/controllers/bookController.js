@@ -227,7 +227,7 @@ exports.getMostBorrowedBooks = async (req, res) => {
         },
       },
       { $sort: { totalBorrows: -1 } },
-      { $limit: 3 },
+      { $limit: 4 },
     ]);
 
     // Lấy danh sách Book theo danh sách _id

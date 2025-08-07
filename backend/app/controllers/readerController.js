@@ -30,6 +30,25 @@ exports.registerReader = async (req, res) => {
     if (existing)
       return res.status(400).json({ message: "Mã độc giả đã tồn tại" });
 
+    if (!password || password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Mật khẩu phải có ít nhất 6 ký tự" });
+    }
+    if (/\s/.test(password)) {
+      return res
+        .status(400)
+        .json({ message: "Mật khẩu không được chứa khoảng trắng" });
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!dienThoai || !phoneRegex.test(dienThoai)) {
+      return res.status(400).json({
+        message:
+          "Số điện thoại phải là chuỗi 10 chữ số và không chứa ký tự đặc biệt",
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const reader = new Reader({
@@ -56,7 +75,6 @@ exports.loginUser = async (req, res) => {
   const { maSo, password } = req.body;
 
   try {
-    // 1. Thử tìm trong Staff trước
     let user = await Staff.findOne({ maNV: maSo });
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
@@ -72,7 +90,6 @@ exports.loginUser = async (req, res) => {
       });
     }
 
-    // 2. Nếu không phải Staff, tìm trong Reader
     user = await Reader.findOne({ maDG: maSo });
     if (!user) {
       return res.status(404).json({ message: "Không tìm thấy mã người dùng" });

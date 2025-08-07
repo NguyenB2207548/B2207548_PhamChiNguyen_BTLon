@@ -24,12 +24,36 @@ exports.registerStaff = async (req, res) => {
   try {
     const { maNV, hoTenNV, password, chucVu, diaChi, soDienThoai } = req.body;
 
+    // Kiểm tra mã nhân viên đã tồn tại
     const existing = await Staff.findOne({ maNV });
     if (existing)
       return res.status(400).json({ message: "Mã nhân viên đã tồn tại" });
 
+    // Kiểm tra mật khẩu
+    if (!password || password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Mật khẩu phải có ít nhất 6 ký tự" });
+    }
+    if (/\s/.test(password)) {
+      return res
+        .status(400)
+        .json({ message: "Mật khẩu không được chứa khoảng trắng" });
+    }
+
+    // Kiểm tra số điện thoại
+    const phoneRegex = /^[0-9]{10}$/; // Định dạng: 10 chữ số
+    if (!soDienThoai || !phoneRegex.test(soDienThoai)) {
+      return res.status(400).json({
+        message:
+          "Số điện thoại phải là chuỗi 10 chữ số và không chứa ký tự đặc biệt",
+      });
+    }
+
+    // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Tạo nhân viên mới
     const staff = new Staff({
       maNV,
       hoTenNV,
@@ -39,6 +63,7 @@ exports.registerStaff = async (req, res) => {
       soDienThoai,
     });
 
+    // Lưu vào cơ sở dữ liệu
     await staff.save();
     res.status(201).json({ message: "Đăng ký nhân viên thành công", staff });
   } catch (err) {
@@ -47,7 +72,6 @@ exports.registerStaff = async (req, res) => {
       .json({ message: "Lỗi đăng ký nhân viên", error: err.message });
   }
 };
-
 exports.loginStaff = async (req, res) => {
   try {
     const { maNV, password } = req.body;
